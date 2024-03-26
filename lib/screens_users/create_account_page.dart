@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:map_flutter/screens_gerentes/create_account_gerente.dart';
 
 import 'login_screen.dart';
 
@@ -11,8 +10,6 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  late Color myColor;
-  late Size mediaSize;
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -29,94 +26,56 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-    myColor = Theme.of(context).primaryColor;
-    mediaSize = MediaQuery.of(context).size;
+    Color myColor = Theme.of(context).primaryColor;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF1b4ee4),
-      body: Stack(
-        children: [
-          Positioned(bottom: 0, child: _buildBottom()),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTop() {
-    return Container(
-      width: mediaSize.width,
-      height: 200,
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/images/Logotipo.png'),
-          fit: BoxFit.contain,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottom() {
-    return SizedBox(
-      width: mediaSize.width,
-      child: Card(
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(30),
-            topRight: Radius.circular(30),
-          ),
-        ),
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
-          child: SingleChildScrollView(
-            child: _buildForm(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Crea tu cuenta",
+                style: TextStyle(
+                  color: Color(0xFF1b4ee4),
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              _buildGreyText("Nombre completo"),
+              _buildInputField(nameController,
+                  icon: Icons.person, focusNode: nameFocusNode),
+              const SizedBox(height: 20),
+              _buildGreyText("Correo Electrónico"),
+              _buildInputField(emailController,
+                  icon: Icons.email, focusNode: emailFocusNode),
+              const SizedBox(height: 20),
+              _buildGreyText("Número Telefónico"),
+              _buildInputField(phoneController,
+                  icon: Icons.phone, focusNode: phoneFocusNode),
+              const SizedBox(height: 20),
+              _buildGreyText("Tipo de Vehículo"),
+              _buildVehicleTypeDropdown(),
+              const SizedBox(height: 20),
+              _buildGreyText("Contraseña"),
+              _buildPasswordInputField(passwordController, passwordFocusNode,
+                  "Contraseña", obscurePassword),
+              const SizedBox(height: 20),
+              _buildGreyText("Confirmar contraseña"),
+              _buildPasswordInputField(
+                  confirmPasswordController,
+                  confirmPasswordFocusNode,
+                  "Confirmar contraseña",
+                  obscureConfirmPassword),
+              const SizedBox(height: 40),
+              _buildSignUpButton(),
+            ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildForm() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Crear cuenta",
-          style: TextStyle(
-            color: myColor,
-            fontSize: 32,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 20),
-        _buildGreyText("Nombre completo"),
-        _buildInputField(nameController,
-            icon: Icons.person, focusNode: nameFocusNode),
-        const SizedBox(height: 20),
-        _buildGreyText("Correo Electrónico"),
-        _buildInputField(emailController,
-            icon: Icons.email, focusNode: emailFocusNode),
-        const SizedBox(height: 20),
-        _buildGreyText("Número Telefónico"),
-        _buildInputField(phoneController,
-            icon: Icons.phone, focusNode: phoneFocusNode),
-        const SizedBox(height: 20),
-        _buildGreyText("Tipo de Vehículo"),
-        _buildVehicleTypeDropdown(),
-        const SizedBox(height: 20),
-        _buildGreyText("Contraseña"),
-        _buildPasswordInputField(passwordController, passwordFocusNode,
-            "Contraseña", obscurePassword),
-        const SizedBox(height: 20),
-        _buildGreyText("Confirmar contraseña"),
-        _buildPasswordInputField(
-            confirmPasswordController,
-            confirmPasswordFocusNode,
-            "Confirmar contraseña",
-            obscureConfirmPassword),
-        const SizedBox(height: 40),
-        _buildSignUpButton(),
-        const SizedBox(height: 20),
-        _buildParkingRegistrationButton(),
-      ],
     );
   }
 
@@ -130,8 +89,7 @@ class _SignUpPageState extends State<SignUpPage> {
       controller: controller,
       focusNode: focusNode,
       decoration: InputDecoration(
-        prefixIcon:
-            focusNode!.hasFocus ? null : (icon != null ? Icon(icon) : null),
+        prefixIcon: icon != null ? Icon(icon) : null,
       ),
     );
   }
@@ -144,10 +102,18 @@ class _SignUpPageState extends State<SignUpPage> {
       obscureText: obscureText,
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: focusNode.hasFocus ? null : const Icon(Icons.lock),
+        prefixIcon: const Icon(Icons.lock),
         suffixIcon: IconButton(
           icon: Icon(obscureText ? Icons.visibility : Icons.visibility_off),
-          onPressed: () => setState(() => obscureText = !obscureText),
+          onPressed: () {
+            setState(() {
+              if (focusNode == passwordFocusNode) {
+                obscurePassword = !obscurePassword;
+              } else {
+                obscureConfirmPassword = !obscureConfirmPassword;
+              }
+            });
+          },
         ),
       ),
     );
@@ -178,50 +144,18 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget _buildSignUpButton() {
     return ElevatedButton(
       onPressed: () {
-        // Navegar a CreateAccountPage
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => LoginPage()),
-        );
+        // Navegar a la página de inicio de sesión
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => LoginPage()));
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: Color(0xFF1b4ee4),
-        shape: const StadiumBorder(),
-        elevation: 20,
-        shadowColor: myColor,
-        minimumSize: const Size.fromHeight(60),
+        minimumSize: const Size.fromHeight(50), // Ajusta la altura del botón
       ),
       child: const Text(
         "Registrar",
-        style: TextStyle(color: Colors.white),
+        style: TextStyle(color: Colors.white, fontSize: 18),
       ),
     );
   }
-
-  Widget _buildParkingRegistrationButton() {
-    return InkWell(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => SignUpParkingPage()),
-        );
-      },
-      child: Center(
-        child: Text(
-          "Registrar mi parqueo",
-          style: TextStyle(
-            color: myColor,
-            fontSize: 18,
-            decoration: TextDecoration.underline,
-          ),
-        ),
-      ),
-    );
-  }
-
-
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: SignUpPage(),
-  ));
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'screens_users/login_screen.dart'; // Asegúrate de importar la clase LoginScreen desde su archivo correspondiente
+import 'screens_users/login_screen.dart';
 
 void main() {
   runApp(MyApp());
