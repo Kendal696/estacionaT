@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: LoginPage(), // Aquí se llama a tu pantalla de inicio de sesión
+      home: LoginPage(),
     );
   }
 }

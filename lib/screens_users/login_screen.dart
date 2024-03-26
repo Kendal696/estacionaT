@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -29,32 +30,35 @@ class _LoginPageState extends State<LoginPage> {
     mediaSize = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: const Color(0xFF1b4ee4),
-      body: Stack(
+      body: Column(
         children: [
-          Positioned(top: 80, child: _buildTop()),
-          Positioned(bottom: 0, child: _buildBottom()),
+          _buildTop(
+              mediaSize), // Pasamos mediaSize para calcular el tamaño de la imagen
+          Expanded(
+            child: _buildBottom(),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildTop() {
+  Widget _buildTop(Size mediaSize) {
+    double topHeight = mediaSize.height *
+        0.3; // Asignar un 30% del alto de la pantalla a la imagen
     return Container(
       width: mediaSize.width,
-      height: 200, // Ajusta la altura según necesites
+      height: topHeight, // Usar el valor calculado para la altura
       decoration: BoxDecoration(
         image: DecorationImage(
           image: AssetImage('assets/images/Logotipo.png'),
-          fit: BoxFit
-              .contain, // Esto hará que la imagen cubra todo el contenedor
+          fit: BoxFit.contain,
         ),
       ),
     );
   }
 
   Widget _buildBottom() {
-    return SizedBox(
-      width: mediaSize.width,
+    return SingleChildScrollView(
       child: Card(
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -166,92 +170,95 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildLoginButton() {
-  return ElevatedButton(
-    onPressed: () async {
-      // Datos de inicio de sesión
-      String username = emailController.text.trim();
-      String password = passwordController.text.trim();
+    return ElevatedButton(
+      onPressed: () async {
+        // Datos de inicio de sesión
+        String username = emailController.text.trim();
+        String password = passwordController.text.trim();
 
-      // Crear el cuerpo de la solicitud
-      Map<String, String> requestBody = {
-        'username': username,
-        'password': password,
-      };
+        // Crear el cuerpo de la solicitud
+        Map<String, String> requestBody = {
+          'username': username,
+          'password': password,
+        };
 
-      // Realizar la solicitud HTTP
-      final response = await http.post(
-        Uri.parse('https://estacionatbackend.onrender.com/api/v2/user/login/'),
-        body: jsonEncode(requestBody),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      );
-    print(response.body);
-      // Verificar el código de respuesta
-      if (response.statusCode == 200) {
-        // Éxito en la solicitud, puedes procesar la respuesta aquí
-        final responseData = jsonDecode(response.body);
-        // Guardar el token de autenticación para futuras solicitudes
-        final authToken = responseData['token'];
-        // Navegar a la pantalla asignada después del inicio de sesión exitoso
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => NavigationBarScreen()),
+        // Realizar la solicitud HTTP
+        final response = await http.post(
+          Uri.parse(
+              'https://estacionatbackend.onrender.com/api/v2/user/login/'),
+          body: jsonEncode(requestBody),
+          headers: {
+            'Content-Type': 'application/json',
+          },
         );
-      } else {
-        // Si la solicitud falla, puedes mostrar un mensaje de error
-        if (response.headers['content-type']?.contains('application/json') ?? false) {
-          final errorMessage = jsonDecode(response.body)['error'];
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text('Error de inicio de sesión'),
-                content: Text(errorMessage),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('Cerrar'),
-                  ),
-                ],
-              );
-            },
+        print(response.body);
+        // Verificar el código de respuesta
+        if (response.statusCode == 200) {
+          // Éxito en la solicitud, puedes procesar la respuesta aquí
+          final responseData = jsonDecode(response.body);
+          // Guardar el token de autenticación para futuras solicitudes
+          final authToken = responseData['token'];
+          // Navegar a la pantalla asignada después del inicio de sesión exitoso
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => NavigationBarScreen()),
           );
         } else {
-          // Si la respuesta no es JSON válido, muestra un mensaje genérico de error
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text('Error de inicio de sesión'),
-                content: Text('Se produjo un error al procesar su solicitud. Por favor, inténtalo de nuevo más tarde.'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('Cerrar'),
-                  ),
-                ],
-              );
-            },
-          );
+          // Si la solicitud falla, puedes mostrar un mensaje de error
+          if (response.headers['content-type']?.contains('application/json') ??
+              false) {
+            final errorMessage = jsonDecode(response.body)['error'];
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Error de inicio de sesión'),
+                  content: Text(errorMessage),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('Cerrar'),
+                    ),
+                  ],
+                );
+              },
+            );
+          } else {
+            // Si la respuesta no es JSON válido, muestra un mensaje genérico de error
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Error de inicio de sesión'),
+                  content: Text(
+                      'Se produjo un error al procesar su solicitud. Por favor, inténtalo de nuevo más tarde.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('Cerrar'),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
         }
-      }
-    },
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Color(0xFF1b4ee4),
-      shape: StadiumBorder(),
-      elevation: 20,
-      minimumSize: Size.fromHeight(60),
-    ),
-    child: Text(
-      "Iniciar Sesión",
-      style: TextStyle(color: Colors.white),
-    ),
-  );
-}
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Color(0xFF1b4ee4),
+        shape: StadiumBorder(),
+        elevation: 20,
+        minimumSize: Size.fromHeight(60),
+      ),
+      child: Text(
+        "Iniciar Sesión",
+        style: TextStyle(color: Colors.white),
+      ),
+    );
+  }
 
   Widget _buildSignUpButton() {
     return ElevatedButton(
