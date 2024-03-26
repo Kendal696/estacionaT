@@ -26,8 +26,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-    Color myColor = Theme.of(context).primaryColor;
-
+    
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
